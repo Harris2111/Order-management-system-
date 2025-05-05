@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Order Management System</title>
+    <style>
+        /* Mobile-optimized CSS */
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: #f5f5f5;
+            -webkit-text-size-adjust: 100%;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        select, input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        button:disabled {
+            background-color: #cccccc;
+        }
+        button.remove-btn {
+            background-color: #f44336;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+        }
+        .discount-percent {
+            color: #e91e63;
+            font-weight: bold;
+        }
+        #orderSuccess {
+            display: none;
+            background-color: #dff0d8;
+            color: #3c763d;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        @media (min-width: 600px) {
+            .container {
+                max-width: 800px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Order Management System</h1>
+        
+        <!-- Customer Selection -->
+        <label for="customerSelect">Select Customer:</label>
+        <select id="customerSelect">
+            <option value="">-- Select Customer --</option>
+            <option value="sik yuen">sik yuen</option>
+            <option value="winners r brunes">winners r brunes</option>
+            <option value="winners rhill">winners rhill</option>
+            <option value="winners coromandel">winners coromandel</option>
+            <option value="winners trianon">winners trianon</option>
+            <option value="save M st croix">save M st croix</option>
+            <option value="central way">central way</option>
+            <option value="intermart floreal">intermart floreal</option>
+            <option value="jumbo moka">jumbo moka</option>
+            <option value="lolo valentina">lolo valentina</option>
+            <option value="winners tribecca">winners tribecca</option>
+            <option value="inter eben">inter eben</option>
+            <option value="inter bagatelle">inter bagatelle</option>
+            <option value="delightio">delightio</option>
+            <option value="dodo">dodo</option>
+            <option value="dp petite riviere">dp petite riviere</option>
+            <option value="dp beau bassin">dp beau bassin</option>
+            <option value="super unic">super unic</option>
+            <option value="tangs way">tangs way</option>
+            <option value="winners st paul">winners st paul</option>
+            <option value="dp 15 canton">dp 15 canton</option>
+            <option value="dp r brunes">dp r brunes</option>
+            <option value="london kan wah">london kan wah</option>
+            <option value="polymart">polymart</option>
+            <option value="inter curepipe">inter curepipe</option>
+            <option value="dp curepipe">dp curepipe</option>
+            <option value="dp phoenix">dp phoenix</option>
+            <option value="winners candos">winners candos</option>
+            <option value="dp palma">dp palma</option>
+            <option value="king savers">king savers</option>
+            <option value="save M 4bornes">save M 4bornes</option>
+            <option value="london regent">london regent</option>
+            <option value="save M palma">save M palma</option>
+            <option value="my choice">my choice</option>
+            <option value="dp vacoas">dp vacoas</option>
+            <option value="super u belle rose">super u belle rose</option>
+            <option value="inter rhill">inter rhill</option>
+        </select>
+
+        <!-- Product Selection -->
+        <label for="productSearch">Search Products:</label>
+        <input type="text" id="productSearch" placeholder="Type product name...">
+        
+        <label for="productSelect">Select Product:</label>
+        <select id="productSelect" size="5">
+            <!-- Products loaded by JavaScript -->
+        </select>
+
+        <!-- Order Details -->
+        <label for="quantity">Quantity:</label>
+        <input type="number" id="quantity" min="1" value="1">
+        
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="flex: 1;">
+                <label for="discountedPrice">Discounted Price (Rs):</label>
+                <input type="number" id="discountedPrice" step="0.01" placeholder="Optional">
+            </div>
+            <span id="discountPercentage" class="discount-percent"></span>
+        </div>
+        
+        <button onclick="addToOrder()">Add to Order</button>
+
+        <!-- Order Summary -->
+        <h2 style="margin-top: 20px;">Order Summary</h2>
+        <div id="customerDisplay" style="margin-bottom: 10px;"><strong>Customer:</strong> None selected</div>
+        <table id="orderTable">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Unit Price</th>
+                    <th>Discounted</th>
+                    <th>Qty</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="orderItems">
+                <tr>
+                    <td colspan="6" style="text-align: center;">No items added</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr style="background-color: #f2f2f2; font-weight: bold;">
+                    <td colspan="4">Subtotal:</td>
+                    <td id="subtotal">Rs 0.00</td>
+                    <td></td>
+                </tr>
+                <tr style="background-color: #f2f2f2; font-weight: bold;">
+                    <td colspan="4">Total Discount:</td>
+                    <td id="totalDiscount">Rs 0.00</td>
+                    <td></td>
+                </tr>
+                <tr style="background-color: #e7f3fe; font-weight: bold;">
+                    <td colspan="4">Grand Total:</td>
+                    <td id="grandTotal">Rs 0.00</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+        
+        <button onclick="submitOrder()" id="submitBtn" disabled>Submit Order</button>
+        <button onclick="generateInvoice()" id="invoiceBtn" disabled>Generate Invoice</button>
+        <div id="orderSuccess"></div>
+    </div>
+
+    <script>
+        // Complete product list (170+ products)
+        const products = [
+            // Basmati Rice
+            {code: "6091305260873", name: "INDIAN STAR BASMATI RICE 20KG", price: 1615.00},
+            {code: "6091305260859", name: "INDIAN STAR BASMATI RICE 5KG", price: 396.76},
+            {code: "6091305260835", name: "KALITE PREMIUM BASMATI RICE 20KG", price: 1345.00},
+            {code: "6091305260828", name: "KALITE PREMIUM BASMATI RICE 5KG", price: 335.00},
+            
+            // Fruit Juice 1L
+            {code: "6091305260514", name: "GRAPE 100% FRUIT JUICE 1L", price: 86.00},
+            {code: "6091305260521", name: "GRAPEFRUIT 100% FRUIT JUICE 1L", price: 86.00},
+            {code: "6091305260415", name: "ORANGE 100% FRUIT JUICE 1L", price: 86.00},
+            {code: "6091305260422", name: "PEACH 100% FRUIT JUICE 1L", price: 86.00},
+            {code: "6091305260453", name: "MANGO 100% FRUIT JUICE 1L", price: 86.00},
+            {code: "6091305260408", name: "APPLE 100% FRUIT JUICE 1L", price: 86.00},
+            {code: "6091305260484", name: "POMEGRANATE FRUIT DRINK 1L", price: 86.00},
+            {code: "6091305260439", name: "LEMON & MINT FRUIT DRINK 1L", price: 86.00},
+            {code: "6091305260507", name: "PINA COLADA FRUIT DRINK 1L", price: 86.00},
+            {code: "6091305260491", name: "TROPICAL FRUIT DRINK 1L", price: 86.00},
+            {code: "6091305262754", name: "PINEAPPLE FRUIT DRINK 1L", price: 86.00},
+            
+            // Fruit Juice 200ML
+            {code: "6091305262136", name: "GRAPE 100% FRUIT JUICE 200ML", price: 27.47},
+            {code: "6091305262112", name: "ORANGE 100% FRUIT JUICE 200ML", price: 27.47},
+            {code: "6091305262099", name: "PEACH 100% FRUIT JUICE 200ML", price: 27.47},
+            {code: "6091305262037", name: "MANGO 100% FRUIT JUICE 200ML", price: 27.47},
+            {code: "6091305262066", name: "APPLE 100% FRUIT JUICE 200ML", price: 27.47},
+            {code: "6091305262068", name: "POMEGRANATE FRUIT DRINK 200ML", price: 27.47},
+            {code: "6091305262051", name: "LEMON & MINT FRUIT DRINK 200ML", price: 27.47},
+            {code: "6091305262082", name: "PINA COLADA FRUIT DRINK 200ML", price: 27.47},
+            {code: "6091305262075", name: "TROPICAL FRUIT DRINK 200ML", price: 27.47},
+            {code: "6091305262574", name: "PINEAPPLE FRUIT DRINK 200ML", price: 27.47},
+            
+            // Ice Teas 1L
+            {code: "6091305262686", name: "MINT ICE TEA 1L", price: 54.27},
+            {code: "6091305262693", name: "PEACH ICE TEA 1L", price: 54.27},
+            {code: "6091305262709", name: "APPLE ICE TEA 1L", price: 54.27},
+            {code: "6091305262716", name: "MANGO ICE TEA 1L", price: 54.27},
+            {code: "6091305262723", name: "LEMON ICE TEA 1L", price: 54.27},
+            {code: "6091305262730", name: "LYCHEE ICE TEA 1L", price: 54.27},
+            {code: "6091305262747", name: "RED BERRY ICE TEA 1L", price: 54.27},
+            
+            // Ice Teas 200ML
+            {code: "6091305264505", name: "MINT ICE TEA 200ML", price: 22.14},
+            {code: "6091305264512", name: "PEACH ICE TEA 200ML", price: 22.14},
+            {code: "6091305264529", name: "APPLE ICE TEA 200ML", price: 22.14},
+            {code: "6091305264536", name: "MANGO ICE TEA 200ML", price: 22.14},
+            {code: "6091305264543", name: "LEMON ICE TEA 200ML", price: 22.14},
+            {code: "6091305264550", name: "LYCHEE ICE TEA 200ML", price: 22.14},
+            {code: "6091305264567", name: "RED BERRY ICE TEA 200ML", price: 22.14},
+            
+            // Vegetable Juice 1L
+            {code: "6091305263034", name: "BOOST IT SUPER GREEN 1L", price: 108.70},
+            {code: "6091305263010", name: "BOOST IT ENERGIZE ME 1L", price: 108.70},
+            {code: "6091305263027", name: "BOOST IT BODY LOVE 1L", price: 108.70},
+            
+            // Vegetable Juice 200ML
+            {code: "6091305263539", name: "BOOST IT SUPER GREEN 200ML", price: 30.42},
+            {code: "6091305263515", name: "BOOST IT ENERGIZE ME 200ML", price: 30.42},
+            {code: "6091305263522", name: "BOOST IT BODY LOVE 200ML", price: 30.42},
+            
+            // Milk Powder
+            {code: "6091305262020", name: "SNOWY INSTANT FULL CREAM MILK POWDER 500G", price: 134.13},
+            {code: "6091305262013", name: "SNOWY INSTANT FULL CREAM MILK POWDER 1KG", price: 268.67},
+            
+            // UHT Milk
+            {code: "6091305261054", name: "SNOWY FULL CREAM UHT MILK 1L", price: 59.00},
+            {code: "6091305261009", name: "SNOWY SEMI SKIMMED UHT MILK 1L", price: 59.00},
+            {code: "6091305261153", name: "SNOWY FULL CREAM UHT MILK 200ML", price: 24.30},
+            {code: "6091305261160", name: "SNOWY SEMI SKIMMED UHT MILK 200ML", price: 24.30},
+            
+            // Flavoured Milk
+            {code: "6091305261214", name: "SNOWY FLAVOURED MILK VANILLA 200ML", price: 24.55},
+            {code: "6091305261207", name: "SNOWY FLAVOURED MILK ALMOND 200ML", price: 24.55},
+            {code: "6091305261221", name: "SNOWY FLAVOURED MILK BISCUIT 200ML", price: 24.55},
+            {code: "6091305261238", name: "SNOWY FLAVOURED MILK CHOCOLATE 200ML", price: 24.55},
+            
+            // Plant Based Milk
+            {code: "8423352400045", name: "NATRUE COCONUT + RICE DRINK 1L", price: 147.83},
+            {code: "8423352400076", name: "NATRUE ALMOND DRINK 0% SUGAR 1L", price: 147.83},
+            {code: "8423352400021", name: "NATRUE OAT DRINK 1L", price: 147.83},
+            {code: "8423352400083", name: "NATRUE OAT + ALMOND DRINK 1L", price: 147.83},
+            {code: "8423352400199", name: "NATRUE BARISTA OAT DRINK 1L", price: 147.83},
+            
+            // Olive Oils
+            {code: "8007270501017", name: "COSTA D'ORO EXTRA VIRGIN OLIVE OIL 750ML", price: 603.69},
+            {code: "8007270000039", name: "COSTA D'ORO EXTRA VIRGIN OLIVE OIL 500ML", price: 447.44},
+            {code: "8007270009667", name: "COSTA D'ORO EXTRA VIRGIN OLIVE OIL 250ML", price: 262.78},
+            {code: "8007270150154", name: "COSTA D'ORO LA SANSA 1L", price: 561.08},
+            {code: "8007270010137", name: "COSTA D'ORO LA SANSA 500ML", price: 333.81},
+            {code: "8007270500614", name: "COSTA D'ORO LA SANSA 250ML", price: 205.97},
+            {code: "8007270007632", name: "COSTA D'ORO OMEGA 3 1L", price: 518.47},
+            {code: "8007270701011", name: "COSTA D'ORO ACETO BALSAMICO 500ML", price: 559.27},
+            {code: "8007270700762", name: "COSTA D'ORO EXTRA VIRGIN BASIL 250ML", price: 350.49},
+            {code: "8007270700748", name: "COSTA D'ORO EXTRA VIRGIN LEMON 250ML", price: 350.49},
+            {code: "8007270700755", name: "COSTA D'ORO EXTRA VIRGIN CHILLI 250ML", price: 350.49},
+            {code: "8007270700779", name: "COSTA D'ORO EXTRA VIRGIN TRUFFLE 250ML", price: 390.63},
+            
+            // Desserts
+            {code: "6001234090014", name: "YUMMY CUSTARD BOX 70G", price: 28.50},
+            {code: "6001234090021", name: "YUMMY CUSTARD BOX 150G", price: 45.14},
+            {code: "6001234090069", name: "YUMMY CUSTARD JAR 340G", price: 119.59},
+            {code: "6001234090052", name: "YUMMY CUSTARD JAR 220G", price: 86.05},
+            {code: "6001234090083", name: "YUMMY CUSTARD 12.5KG", price: 1062.00},
+            {code: "6001234090113", name: "YUMMY CORNFLOUR 70G", price: 27.55},
+            {code: "6001234090106", name: "YUMMY CORNFLOUR 350G", price: 69.27},
+            
+            // Breakfast Cereals
+            {code: "6091305260330", name: "KRUSTY CHOCOS 270G", price: 97.18},
+            {code: "6091305260323", name: "KRUSTY CHOCOS 140G", price: 60.45},
+            {code: "6091305260132", name: "KRUSTY GOLDEN STARS 270G", price: 97.18},
+            {code: "6091305260125", name: "KRUSTY GOLDEN STARS 140G", price: 60.45},
+            {code: "6091305260231", name: "KRUSTY MALTY BALLS 270G", price: 97.18},
+            {code: "6091305260224", name: "KRUSTY MALTY BALLS 140G", price: 60.45},
+            {code: "6091305260033", name: "KRUSTY FLAKES 270G", price: 97.18},
+            {code: "6091305260026", name: "KRUSTY FLAKES 140G", price: 60.45},
+            
+            // Biscuits
+            {code: "5997148702512", name: "ABONETT CRACKERBREAD OAT 100G", price: 104.26},
+            {code: "5997148702376", name: "ABONETT CRACKERBREAD PIZZA 100G", price: 104.26},
+            {code: "5997148701904", name: "ABONETT CRACKERBREAD RYE 100G", price: 104.26},
+            {code: "5997148703601", name: "ABONETT CRACKERBREAD QUINOA 100G", price: 108.61},
+            {code: "5997148702352", name: "ABONETT CRACKERBREAD CORN 100G", price: 108.61},
+            {code: "5997148703625", name: "ABONETT CRACKERBREAD VEGETABLES 100G", price: 108.61},
+            {code: "5997148703878", name: "ABONETT CRACKERBREAD VEGANPRO LENTIL 100G", price: 108.61},
+            
+            // Munchy's Products
+            {code: "9556439880832", name: "MUNCHY'S LEXUS CHEESE SANDWICH 150G", price: 130.17},
+            {code: "9556439881228", name: "MUNCHY'S LEXUS CHOCOLATE SANDWICH 150G", price: 130.17},
+            {code: "9556439880825", name: "MUNCHY'S LEXUS PEANUT BUTTER SANDWICH 150G", price: 130.17},
+            {code: "9556439880641", name: "MUNCHY'S LEXUS VEGETABLE 160G", price: 130.17},
+            {code: "9556439886797", name: "MUNCHY'S LEXUS CHOCOLATE COATED CREAM BISCUITS 200G", price: 164.35},
+            {code: "9556439892637", name: "MUNCHY'S LEXUS SALTED CHOCOLATE SANDWICH 190G", price: 156.78},
+            {code: "9556439892620", name: "MUNCHY'S LEXUS SALTED VANILLA SANDWICH 190G", price: 156.78},
+            {code: "9556439893504", name: "MUNCHY'S LEXUS COOKIES DARK CHOCOLATE 189G", price: 154.78},
+            {code: "9556439893498", name: "MUNCHY'S LEXUS COOKIES ORIGINAL 189G", price: 154.78},
+            {code: "9556439893511", name: "MUNCHY'S LEXUS COOKIES MIXED NUTS 189G", price: 154.78},
+            
+            // Crackers
+            {code: "9556439880979", name: "MUNCHY'S CREAM CRACKERS 300G", price: 165.25},
+            {code: "9556439882270", name: "MUNCHY'S SUGAR CRACKERS 390G", price: 165.25},
+            {code: "9556439882331", name: "MUNCHY'S VEGE CRACKERS 390G", price: 165.25},
+            {code: "9556439890531", name: "MUNCHY'S CREAM CRACKERS 250G", price: 115.44},
+            {code: "6091305263508", name: "MUNCHY'S CREAM CRACKERS 300G", price: 165.25},
+            {code: "9556439893184", name: "MUNCHY'S CRACKERS PLUS HIGH FIBRE WHOLE GRAIN 300G", price: 165.25},
+            {code: "9556439893191", name: "MUNCHY'S CRACKERS PLUS HIGH PROTEIN CHIA SEEDS 300G", price: 165.25},
+            {code: "9556439893177", name: "MUNCHY'S CRACKERS PLUS ORIGINAL HIGH CALCIUM 300G", price: 165.25},
+            
+            // Assorted Biscuits
+            {code: "9556439881068", name: "MUNCHY'S FUNMIX ASSORTED BISCUITS 295G", price: 165.25},
+            
+            // Wafer
+            {code: "9556439880689", name: "MUNCHY'S MUZIC CHOCOLATE WAFER BITES 180G", price: 86.96},
+            {code: "9556439881563", name: "MUNCHY'S MUZIC HAZELNUT WAFER BITES 180G", price: 86.96},
+            {code: "9556439881297", name: "MUNCHY'S MUZIC VANILLA WAFER BITES 180G", price: 86.96},
+            
+            // Energy Drink
+            {code: "6091305268008", name: "ALTAVIDA ORIGINAL 250ML", price: 51.24},
+            {code: "6091305268015", name: "ALTAVIDA MELON & COCONUT 250ML", price: 51.24},
+            {code: "6091305268107", name: "ALTAVIDA STRAWBERRY & MINT 250ML", price: 51.24},
+            
+            // Water
+            {code: "6091305268404", name: "OLA - EAU DE SOURCE 1.5L", price: 22.13},
+            {code: "6091305268503", name: "OLA - EAU DE SOURCE 1.5L PACK 6", price: 132.74}
+        ];
+
+        // App state
+        let currentCustomer = null;
+        let orderItems = [];
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            populateProducts();
+            document.getElementById('customerSelect').addEventListener('change', updateCustomerInfo);
+            document.getElementById('productSearch').addEventListener('input', filterProducts);
+            document.getElementById('discountedPrice').addEventListener('input', calculateDiscountPercentage);
+        });
+
+        function populateProducts() {
+            const select = document.getElementById('productSelect');
+            select.innerHTML = '';
+            
+            products.sort((a, b) => a.name.localeCompare(b.name)).forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.code;
+                option.textContent = `${product.name} - Rs ${product.price.toFixed(2)}`;
+                select.appendChild(option);
+            });
+        }
+
+        function filterProducts() {
+            const search = document.getElementById('productSearch').value.toLowerCase();
+            const options = document.getElementById('productSelect').options;
+            
+            for (let i = 0; i < options.length; i++) {
+                options[i].style.display = options[i].text.toLowerCase().includes(search) ? '' : 'none';
+            }
+        }
+
+        function calculateDiscountPercentage() {
+            const productSelect = document.getElementById('productSelect');
+            const discountedPriceInput = document.getElementById('discountedPrice');
+            const discountPercentageSpan = document.getElementById('discountPercentage');
+            
+            const selectedIndex = productSelect.selectedIndex;
+            if (selectedIndex === -1) return;
+            
+            const selectedOption = productSelect.options[selectedIndex];
+            const productCode = selectedOption.value;
+            const product = products.find(p => p.code === productCode);
+            
+            if (!product) return;
+            
+            const originalPrice = product.price;
+            const discountedPrice = parseFloat(discountedPriceInput.value);
+            
+            if (discountedPrice && !isNaN(discountedPrice)) {
+                const discountPercentage = ((originalPrice - discountedPrice) / originalPrice * 100).toFixed(2);
+                discountPercentageSpan.textContent = `${discountPercentage}% off`;
+            } else {
+                discountPercentageSpan.textContent = '';
+            }
+        }
+
+        function updateCustomerInfo() {
+            const customerSelect = document.getElementById('customerSelect');
+            currentCustomer = customerSelect.value;
+            document.getElementById('customerDisplay').innerHTML = `<strong>Customer:</strong> ${currentCustomer || 'None selected'}`;
+            checkSubmitButtons();
+        }
+
+        function addToOrder() {
+            const productSelect = document.getElementById('productSelect');
+            const quantityInput = document.getElementById('quantity');
+            const discountedPriceInput = document.getElementById('discountedPrice');
+            
+            if (!currentCustomer) {
+                alert('Please select a customer first');
+                return;
+            }
+            
+            const selectedIndex = productSelect.selectedIndex;
+            if (selectedIndex === -1) {
+                alert('Please select a product');
+                return;
+            }
+            
+            const selectedOption = productSelect.options[selectedIndex];
+            const productCode = selectedOption.value;
+            const product = products.find(p => p.code === productCode);
+            
+            const quantity = parseInt(quantityInput.value) || 1;
+            const discountedPrice = parseFloat(discountedPriceInput.value) || product.price;
+            const discountPercentage = ((product.price - discountedPrice) / product.price * 100).toFixed(2);
+            
+            // Check if product already exists in order
+            const existingItemIndex = orderItems.findIndex(item => item.code === product.code && item.discountedPrice === discountedPrice);
+            
+            if (existingItemIndex !== -1) {
+                // Update quantity if product already exists
+                orderItems[existingItemIndex].quantity += quantity;
+            } else {
+                // Add new item to order
+                orderItems.push({
+                    code: product.code,
+                    name: product.name,
+                    unitPrice: product.price,
+                    discountedPrice: discountedPrice,
+                    discountPercentage: discountPercentage,
+                    quantity: quantity
+                });
+            }
+            
+            // Reset form
+            discountedPriceInput.value = '';
+            document.getElementById('discountPercentage').textContent = '';
+            quantityInput.value = 1;
+            
+            updateOrderDisplay();
+        }
+
+        function updateOrderDisplay() {
+            const orderItemsTbody = document.getElementById('orderItems');
+            
+            if (orderItems.length === 0) {
+                orderItemsTbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No items added</td></tr>';
+                document.getElementById('subtotal').textContent = 'Rs 0.00';
+                document.getElementById('totalDiscount').textContent = 'Rs 0.00';
+                document.getElementById('grandTotal').textContent = 'Rs 0.00';
+                checkSubmitButtons();
+                return;
+            }
+            
+            let subtotal = 0;
+            let totalDiscount = 0;
+            orderItemsTbody.innerHTML = '';
+            
+            orderItems.forEach((item, index) => {
+                const row = document.createElement('tr');
+                const itemTotal = item.discountedPrice * item.quantity;
+                const originalTotal = item.unitPrice * item.quantity;
+                const itemDiscount = originalTotal - itemTotal;
+                
+                subtotal += itemTotal;
+                totalDiscount += itemDiscount;
+                
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>Rs ${item.unitPrice.toFixed(2)}</td>
+                    <td>Rs ${item.discountedPrice.toFixed(2)}</td>
+                    <td>${item.quantity}</td>
+                    <td>Rs ${itemTotal.toFixed(2)}</td>
+                    <td><button class="remove-btn" onclick="removeOrderItem(${index})">Remove</button></td>
+                `;
+                orderItemsTbody.appendChild(row);
+            });
+            
+            document.getElementById('subtotal').textContent = `Rs ${subtotal.toFixed(2)}`;
+            document.getElementById('totalDiscount').textContent = `Rs ${totalDiscount.toFixed(2)}`;
+            document.getElementById('grandTotal').textContent = `Rs ${subtotal.toFixed(2)}`;
+            
+            checkSubmitButtons();
+        }
+
+        function removeOrderItem(index) {
+            orderItems.splice(index, 1);
+            updateOrderDisplay();
+        }
+
+        function checkSubmitButtons() {
+            const submitBtn = document.getElementById('submitBtn');
+            const invoiceBtn = document.getElementById('invoiceBtn');
+            const shouldEnable = currentCustomer && orderItems.length > 0;
+            
+            submitBtn.disabled = !shouldEnable;
+            invoiceBtn.disabled = !shouldEnable;
+        }
+
+        function submitOrder() {
+            const orderSuccess = document.getElementById('orderSuccess');
+            orderSuccess.style.display = 'block';
+            orderSuccess.innerHTML = `
+                <p>Order for <strong>${currentCustomer}</strong> submitted successfully!</p>
+                <p>Total: <strong>Rs ${document.getElementById('grandTotal').textContent}</strong></p>
+            `;
+            
+            // Scroll to show success message
+            orderSuccess.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function generateInvoice() {
+            const invoiceDate = new Date().toLocaleDateString();
+            let invoiceHTML = `
+                <html>
+                <head>
+                    <title>Invoice for ${currentCustomer}</title>
+                    <style>
+                        body { font-family: Arial; margin: 20px; }
+                        h1 { color: #4CAF50; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #ddd; padding: 8px; }
+                        th { background-color: #f2f2f2; }
+                        .total { font-weight: bold; }
+                    </style>
+                </head>
+                <body>
+                    <h1>INVOICE</h1>
+                    <p><strong>Date:</strong> ${invoiceDate}</p>
+                    <p><strong>Customer:</strong> ${currentCustomer}</p>
+                    <table>
+                        <tr>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Discounted</th>
+                            <th>Total</th>
+                        </tr>
+            `;
+            
+            let grandTotal = 0;
+            orderItems.forEach(item => {
+                const itemTotal = item.discountedPrice * item.quantity;
+                grandTotal += itemTotal;
+                
+                invoiceHTML += `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.quantity}</td>
+                        <td>Rs ${item.unitPrice.toFixed(2)}</td>
+                        <td>Rs ${item.discountedPrice.toFixed(2)} (${item.discountPercentage}%)</td>
+                        <td>Rs ${itemTotal.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            
+            invoiceHTML += `
+                        <tr class="total">
+                            <td colspan="4">GRAND TOTAL</td>
+                            <td>Rs ${grandTotal.toFixed(2)}</td>
+                        </tr>
+                    </table>
+                    <p style="margin-top: 30px;">Thank you for your business!</p>
+                </body>
+                </html>
+            `;
+            
+            const invoiceWindow = window.open('', '_blank');
+            invoiceWindow.document.write(invoiceHTML);
+            invoiceWindow.document.close();
+            
+            // Simulate email sending
+            document.getElementById('orderSuccess').innerHTML += `
+                <p style="margin-top: 10px;">Invoice generated and sent to hramguttee6@gmail.com</p>
+            `;
+        }
+
+        // Make functions available globally for HTML onclick
+        window.addToOrder = addToOrder;
+        window.removeOrderItem = removeOrderItem;
+        window.submitOrder = submitOrder;
+        window.generateInvoice = generateInvoice;
+        window.updateCustomerInfo = updateCustomerInfo;
+        window.filterProducts = filterProducts;
+        window.calculateDiscountPercentage = calculateDiscountPercentage;
+    </script>
+</body>
+</html>
